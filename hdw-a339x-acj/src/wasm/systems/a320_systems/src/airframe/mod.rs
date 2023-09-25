@@ -16,7 +16,7 @@ pub struct A320Airframe {
 }
 impl A320Airframe {
     const LOADSHEET: LoadsheetInfo = LoadsheetInfo {
-        operating_empty_weight_kg: 279987.,
+        operating_empty_weight_kg: 134500.,
         operating_empty_position: (-28.31, 0., 0.),
         per_pax_weight_kg: 84.,
         mean_aerodynamic_chord_size: 25.49,

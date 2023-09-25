@@ -1,9 +1,6 @@
 {
     "specs": {
         "prefix": "A339X",
-        "emptyPosition": -28.31,
-        "macSize": 25.49,
-        "leMacZ": -21.63,
         "weights": {
             "maxGw": 251000,
             "maxZfw": 181000,
@@ -23,6 +20,7 @@
     "seatMap": [
         {
             "name": "ROWS [1-4]",
+            "deck": 0,
             "capacity": 36,
             "rows": [
                 {
@@ -181,6 +179,7 @@
         },
         {
             "name": "ROWS [5-8]",
+            "deck": 0,
             "capacity": 36,
             "rows": [
                 {
@@ -339,6 +338,7 @@
         },
         {
             "name": "ROWS [9-15]",
+            "deck": 0,
             "capacity": 39,
             "rows": [
                 {
@@ -515,6 +515,7 @@
         },
         {
             "name": "ROWS [16-21]",
+            "deck": 0,
             "capacity": 48,
             "rows": [
                 {
@@ -728,6 +729,7 @@
         },
         {
             "name": "ROWS [22-26]",
+            "deck": 0,
             "capacity": 45,
             "rows": [
                 {
@@ -923,6 +925,7 @@
         },
         {
             "name": "ROWS [27-31]",
+            "deck": 0,
             "capacity": 45,
             "rows": [
                 {
@@ -1118,6 +1121,7 @@
         },
         {
             "name": "ROWS [32-36]",
+            "deck": 0,
             "capacity": 45,
             "rows": [
                 {
@@ -1313,6 +1317,7 @@
         },
         {
             "name": "ROWS [37-41]",
+            "deck": 0,
             "capacity": 45,
             "rows": [
                 {
@@ -1508,6 +1513,7 @@
         },
         {
             "name": "ROWS [42-46]",
+            "deck": 0,
             "capacity": 45,
             "rows": [
                 {
@@ -1703,6 +1709,7 @@
         },
         {
             "name": "ROWS [47-54]",
+            "deck": 0,
             "capacity": 52,
             "rows": [
                 {

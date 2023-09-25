@@ -15,7 +15,7 @@ import { SelectGroup, SelectItem } from '../../../../UtilComponents/Form/Select'
 import { SeatMapWidget } from '../Seating/SeatMapWidget';
 import { PromptModal, useModals } from '../../../../UtilComponents/Modals/Modals';
 
-interface A330Props {
+interface A320Props {
     simbriefUnits: string,
     simbriefBagWeight: number,
     simbriefPaxWeight: number,
@@ -31,7 +31,7 @@ interface A330Props {
     setBoardingStarted: (boardingStarted: any) => void,
     setBoardingRate: (boardingRate: any) => void,
 }
-export const ACJ330Payload: React.FC<A330Props> = ({
+export const ACJ330Payload: React.FC<A320Props> = ({
     simbriefUnits,
     simbriefBagWeight,
     simbriefPaxWeight,
@@ -49,12 +49,12 @@ export const ACJ330Payload: React.FC<A330Props> = ({
     const { showModal } = useModals();
 
     const [aFlags] = useSeatFlags(`L:${Loadsheet.seatMap[0].simVar}`, Loadsheet.seatMap[0].capacity, 509);
-    const [bFlags] = useSeatFlags(`L:${Loadsheet.seatMap[1].simVar}`, Loadsheet.seatMap[1].capacity, 541);
-    const [cFlags] = useSeatFlags(`L:${Loadsheet.seatMap[2].simVar}`, Loadsheet.seatMap[2].capacity, 569);
+    const [bFlags] = useSeatFlags(`L:${Loadsheet.seatMap[1].simVar}`, Loadsheet.seatMap[1].capacity, 521);
+    const [cFlags] = useSeatFlags(`L:${Loadsheet.seatMap[2].simVar}`, Loadsheet.seatMap[2].capacity, 523);
 
-    const [aFlagsDesired, setAFlagsDesired] = useSeatFlags(`L:${Loadsheet.seatMap[0].simVar}_DESIRED`, Loadsheet.seatMap[0].capacity, 379);
-    const [bFlagsDesired, setBFlagsDesired] = useSeatFlags(`L:${Loadsheet.seatMap[1].simVar}_DESIRED`, Loadsheet.seatMap[1].capacity, 421);
-    const [cFlagsDesired, setCFlagsDesired] = useSeatFlags(`L:${Loadsheet.seatMap[2].simVar}_DESIRED`, Loadsheet.seatMap[2].capacity, 457);
+    const [aFlagsDesired, setAFlagsDesired] = useSeatFlags(`L:${Loadsheet.seatMap[0].simVar}_DESIRED`, Loadsheet.seatMap[0].capacity, 317);
+    const [bFlagsDesired, setBFlagsDesired] = useSeatFlags(`L:${Loadsheet.seatMap[1].simVar}_DESIRED`, Loadsheet.seatMap[1].capacity, 347);
+    const [cFlagsDesired, setCFlagsDesired] = useSeatFlags(`L:${Loadsheet.seatMap[2].simVar}_DESIRED`, Loadsheet.seatMap[2].capacity, 359);
 
     const activeFlags = useMemo(() => [aFlags, bFlags, cFlags], [aFlags, bFlags, cFlags]);
     const desiredFlags = useMemo(() => [aFlagsDesired, bFlagsDesired, cFlagsDesired], [aFlagsDesired, bFlagsDesired, cFlagsDesired]);
@@ -295,6 +295,11 @@ export const ACJ330Payload: React.FC<A330Props> = ({
         setBoardingStarted(false);
     }, [totalPaxDesired, totalPax, totalCargo, boardingStarted, totalCargoDesired]);
 
+    // Note: will need to be looked into when doors can be opened on this page.
+    const [cabinLeftDoorOpen] = useState(SimVar.GetSimVarValue('A:INTERACTIVE POINT OPEN:0', 'Percent over 100'));
+    const [cabinRightDoorOpen] = useState(SimVar.GetSimVarValue('A:INTERACTIVE POINT OPEN:1', 'Percent over 100'));
+    const [aftLeftDoorOpen] = useState(SimVar.GetSimVarValue('A:INTERACTIVE POINT OPEN:2', 'Percent over 100'));
+
     const calculateBoardingTime = useMemo(() => {
         // factors taken from payload.rs TODO: Simvar
         let boardingRateMultiplier = 0;
@@ -303,6 +308,19 @@ export const ACJ330Payload: React.FC<A330Props> = ({
         } else if (boardingRate === 'FAST') {
             boardingRateMultiplier = 1;
         }
+
+        let boardingDoorsOpen = 0;
+        if (cabinLeftDoorOpen) {
+            boardingDoorsOpen++;
+        }
+        if (cabinRightDoorOpen) {
+            boardingDoorsOpen++;
+        }
+        if (aftLeftDoorOpen) {
+            boardingDoorsOpen++;
+        }
+        boardingDoorsOpen = Math.max(boardingDoorsOpen, 1);
+        boardingRateMultiplier /= boardingDoorsOpen;
 
         // factors taken from payload.rs TODO: Simvar
         const cargoWeightPerWeightStep = 60;
@@ -314,7 +332,7 @@ export const ACJ330Payload: React.FC<A330Props> = ({
         const estimatedCargoLoadingSeconds = (differentialCargo / cargoWeightPerWeightStep) * boardingRateMultiplier;
 
         return Math.max(estimatedPaxBoardingSeconds, estimatedCargoLoadingSeconds);
-    }, [totalPaxDesired, totalPax, totalCargoDesired, totalCargo, boardingRate]);
+    }, [totalPaxDesired, totalPax, totalCargoDesired, totalCargo, cabinLeftDoorOpen, cabinRightDoorOpen, aftLeftDoorOpen, boardingRate]);
 
     const boardingStatusClass = useMemo(() => {
         if (!boardingStarted) {
@@ -439,11 +457,11 @@ export const ACJ330Payload: React.FC<A330Props> = ({
         return `${minutes}:${padding}${seconds.toFixed(0)} ${t('Ground.Payload.EstimatedDurationUnit')}`;
     };
 
-    const [theme] = usePersistentProperty('EFB_UI_THEME', 'blue');
+    const [theme] = usePersistentProperty('EFB_UI_THEME', 'orange');
     const getTheme = useCallback((theme: string): [string, string, string] => {
         let base = '#fff';
-        let primary = '#E37E28';
-        let secondary = '#14181F';
+        let primary = '#00C9E4';
+        let secondary = '#84CC16';
         switch (theme) {
         case 'dark':
             base = '#fff';
@@ -453,6 +471,11 @@ export const ACJ330Payload: React.FC<A330Props> = ({
         case 'light':
             base = '#000000';
             primary = '#3B82F6';
+            secondary = '#84CC16';
+            break;
+        case 'orange':
+            base = '#fff';
+            primary = '#e37e28';
             secondary = '#84CC16';
             break;
         default:

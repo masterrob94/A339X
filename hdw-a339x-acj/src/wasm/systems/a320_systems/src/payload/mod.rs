@@ -43,12 +43,7 @@ pub enum A320Cargo {
     AftBaggage,
     AftBulkLoose,
 }
-#[cfg(test)]
-impl From<A320Cargo> for usize {
-    fn from(value: A320Cargo) -> Self {
-        value as usize
-    }
-}
+
 #[cfg(test)]
 impl From<usize> for A320Cargo {
     fn from(value: usize) -> Self {
@@ -63,7 +58,7 @@ impl From<usize> for A320Cargo {
 }
 
 pub struct A320Payload {
-    payload_manager: PayloadManager<3, 2, 4>,
+    payload_manager: PayloadManager<3, 1, 4>,
 }
 impl A320Payload {
     // Note: These constants reflect flight_model.cfg values and will have to be updated in sync with the configuration
@@ -71,19 +66,19 @@ impl A320Payload {
     const A320_PAX: [PaxInfo<'_>; 3] = [
         PaxInfo {
             max_pax: 36,
-            position: (40., 0., 0.),
+            position: (40.0, 0., 0.),
             pax_id: "PAX_A",
             payload_id: "PAYLOAD_STATION_1_REQ",
         },
         PaxInfo {
             max_pax: 36,
-            position: (-50., 0., 0.),
+            position: (-50.0, 0., 0.),
             pax_id: "PAX_B",
             payload_id: "PAYLOAD_STATION_2_REQ",
         },
         PaxInfo {
             max_pax: 39,
-            position: (-70., 0., 0.),
+            position: (-70.0, 0., 0.),
             pax_id: "PAX_C",
             payload_id: "PAYLOAD_STATION_3_REQ",
         },
@@ -92,7 +87,7 @@ impl A320Payload {
     const A320_CARGO: [CargoInfo<'_>; 4] = [
         CargoInfo {
             max_cargo_kg: 5800.,
-            position: (40., 0., 0.),
+            position: (40.0, 0., 0.),
             cargo_id: "CARGO_FWD_BAGGAGE_CONTAINER",
             payload_id: "PAYLOAD_STATION_4_REQ",
         },
@@ -120,6 +115,7 @@ impl A320Payload {
         let per_pax_weight = Rc::new(Cell::new(Mass::new::<kilogram>(
             Self::DEFAULT_PER_PAX_WEIGHT_KG,
         )));
+
         let developer_state = Rc::new(Cell::new(0));
         let boarding_sounds = BoardingSounds::new(context);
         let pax = Self::A320_PAX.map(|p| {
@@ -144,9 +140,14 @@ impl A320Payload {
                 Mass::new::<kilogram>(c.max_cargo_kg),
             )
         });
-        let boarding_agents = [BoardingAgent::new([0, 1, 2]), BoardingAgent::new([2, 1, 0])];
+        let boarding_agents = [
+            BoardingAgent::new(
+                context.get_identifier("INTERACTIVE POINT OPEN:0".to_owned()),
+                [0, 1, 2],
+            ),
+        ];
 
-        let passenger_deck = PassengerDeck::new(context, pax, boarding_agents);
+        let passenger_deck = PassengerDeck::new(pax, boarding_agents);
         let cargo_deck = CargoDeck::new(cargo);
 
         A320Payload {
@@ -342,6 +343,7 @@ impl CargoPayload for A320Payload {
         self.target_cargo_center_of_gravity().x
     }
 }
+
 impl SimulationElement for A320Payload {
     fn accept<T: SimulationElementVisitor>(&mut self, visitor: &mut T) {
         self.payload_manager.accept(visitor);
